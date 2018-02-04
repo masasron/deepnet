@@ -8,10 +8,21 @@ const vectorize = require('./vectorize')
 
 const readLines = file => fs.readFileSync(file, 'utf8').split('\n')
 
+const console2 = {
+    log: (str,color = 37) => {
+        console.log(`\x1b[${color}m${str}\x1b[0m`)
+        return console2
+    },
+    error: str => console2.log(str,31),
+    success: str => console2.log(str,32),
+    warning: str => console2.log(str,33),
+    info: str => console2.log(str,34)
+}
+
 const DeepNet = {
 
     /**
-     * Prepare a dataset
+     * Use a model to predict results given an input.
      * 
      * @param {string} model
      * @param {string} input
@@ -21,7 +32,7 @@ const DeepNet = {
     predict: (model,input) => {
         const predict = require(model)
 
-        console.log("\x1b[32m[MODEL SUCCESSFULLY LOADED]\x1b[0m")
+        console2.success("[32m[MODEL SUCCESSFULLY LOADED]")
 
         if (input !== '-'){
             console.log(predict(input))
@@ -37,24 +48,29 @@ const DeepNet = {
     },
 
     /**
-     * Prepare a dataset
+     * Make a deepnet compatible dataset given a list of positive and negative expressions. 
      * 
      * @param {string} positive_dataset_file
      * @param {string} negative_dataset_file
      * @param {object} options
      */
-    prepare: (positive_dataset_file,negative_dataset_file, options) => {
+    dataset: (positive_dataset_file,negative_dataset_file, options) => {
         const output = []
         const vectorizeIfNeeded = input => typeof input == 'string' && options.vectorize ? vectorize(input) : input
 
         readLines(positive_dataset_file).forEach( line => output.push({input: vectorizeIfNeeded(line), output: [1]}) )
         readLines(negative_dataset_file).forEach( line => output.push({input: vectorizeIfNeeded(line), output: [0]}) )
         
-        fs.writeFileSync('./dataset.deepnet', JSON.stringify(output), 'utf8')
+        const file_name = `${options.name}.json`
+
+        fs.writeFileSync(file_name, JSON.stringify(output), 'utf8')
+
+        console2.success(`Dataset file was successfully created.`)
+                .log(`file: ${file_name}\n`)
     },
 
     /**
-     * Prepare a dataset
+     * Train a model
      * 
      * @param {string} file
      * @param {object} options

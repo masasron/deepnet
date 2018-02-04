@@ -24,9 +24,10 @@ commander
   .action(DeepNet.train)
 
 commander
-  .command('prepare <positive_dataset_file> <negative_dataset_file>')
+  .command('dataset <positive_dataset_file> <negative_dataset_file>')
+  .option('-n, --name <f>','choose a dataset name', `dataset-${new Date().getTime()}`)
   .option('-v, --vectorize <f>','automatically vectorize strings',parseBoolean, true)
-  .action(DeepNet.prepare)
+  .action(DeepNet.dataset)
 
 commander
   .command('predict <model> <test-data>')
