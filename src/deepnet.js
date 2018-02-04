@@ -66,7 +66,7 @@ const DeepNet = {
      * @param {object} options
      */   
     train: (file,options) => {
-        
+
         const net = new brain.NeuralNetwork({
             activation: options.activation,
             hiddenLayers: [options.hiddenLayers],
@@ -133,7 +133,10 @@ const DeepNet = {
             callbackPeriod: options.savePeriod
         })
 
+        // Store final model
         saveModel(`${options.name}/model.js`)
+
+        // Check model accuracy
 
         console2.info(`Running ${test_dataset.length} accuracy tests...`)
 
