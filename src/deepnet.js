@@ -4,20 +4,10 @@ const fs = require('fs')
 
 const brain = require('brain.js')
 const shuffle = require('./shuffle')
+const console2 = require('./console2')
 const vectorize = require('./vectorize')
 
 const readLines = file => fs.readFileSync(file, 'utf8').split('\n')
-
-const console2 = {
-    log: (str,color = 37) => {
-        console.log(`\x1b[${color}m${str}\x1b[0m`)
-        return console2
-    },
-    error: str => console2.log(str,31),
-    success: str => console2.log(str,32),
-    warning: str => console2.log(str,33),
-    info: str => console2.log(str,34)
-}
 
 const DeepNet = {
 
@@ -32,7 +22,7 @@ const DeepNet = {
     predict: (model,input) => {
         const predict = require(model)
 
-        console2.success("[32m[MODEL SUCCESSFULLY LOADED]")
+        console2.success("[MODEL SUCCESSFULLY LOADED]")
 
         if (input !== '-'){
             console.log(predict(input))
@@ -124,11 +114,11 @@ const DeepNet = {
             log: options.log,
             logPeriod: options.logPeriod,
             learningRate: options.learningRate,
-            callback: netState => storeNet(`${options.name}/model-${netState.error}-${netState.iterations}.bin`),
+            callback: netState => storeNet(`${options.name}/model-iterations-${netState.iterations}-error-${netState.error}.js`),
             callbackPeriod: options.savePeriod
         })
 
-        storeNet(`${options.name}/model.bin`)
+        storeNet(`${options.name}/model.js`)
     }
 
 }
