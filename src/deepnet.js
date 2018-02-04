@@ -160,7 +160,7 @@ const DeepNet = {
 
         let accuracy = success / test_dataset.length
 
-        console2.info(`Model accuracy: ${accuracy*100}`)
+        console2.info(`Model accuracy: ${accuracy*100}%`)
     }
 
 }
