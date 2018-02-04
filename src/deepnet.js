@@ -66,7 +66,7 @@ const DeepNet = {
      * @param {object} options
      */   
     train: (file,options) => {
-
+        
         const net = new brain.NeuralNetwork({
             activation: options.activation,
             hiddenLayers: [options.hiddenLayers],
@@ -93,9 +93,22 @@ const DeepNet = {
             }
         }
 
-        fs.mkdirSync(options.name)
+        // Extract test datasets from training data
+        let test_dataset_size = Math.round(training_dataset.length*(options.testDatasetPercentage*0.01))
+        let test_dataset = training_dataset.slice(0,test_dataset_size)
 
-        const storeNet = file => {
+        // Remove test datasets from training data
+        training_dataset = training_dataset.slice(test_dataset_size,training_dataset.length)
+
+        try{
+            fs.mkdirSync(options.name)
+        }catch(ex){}
+
+        const saveModel = (file, iterations) => {
+            if (iterations === 0){
+                return
+            }
+
             let vector_function = (options.vectorize) ? vectorize.toString() : 'function vectorize(i){ return i; }'
             
             let moduleExports = `function predict(input){ return anonymous(vectorize(input)); }
@@ -106,6 +119,8 @@ const DeepNet = {
                         ${moduleExports}`
 
             fs.writeFileSync(file,code,'utf8')
+
+            console2.success(`Model saved to ${file}`)
         }
 
         net.train(training_dataset,{
@@ -114,11 +129,35 @@ const DeepNet = {
             log: options.log,
             logPeriod: options.logPeriod,
             learningRate: options.learningRate,
-            callback: netState => storeNet(`${options.name}/model-iterations-${netState.iterations}-error-${netState.error}.js`),
+            callback: netState => saveModel(`${options.name}/model-iterations-${netState.iterations}-error-${netState.error}.js`,netState.iterations),
             callbackPeriod: options.savePeriod
         })
 
-        storeNet(`${options.name}/model.js`)
+        saveModel(`${options.name}/model.js`)
+
+        console2.info(`Running ${test_dataset.length} accuracy tests...`)
+
+        let success = 0
+
+        test_dataset.forEach( dataset => {
+            let output = net.run(dataset.input)
+            switch(dataset.output[0]){
+                case 1:
+                    if (output >= 0.8){
+                        success++
+                    }
+                break;
+                case 0:
+                    if (output <= 0.5){
+                        success++
+                    }
+                break;
+            }
+        })
+
+        let accuracy = success / test_dataset.length
+
+        console2.info(`Model accuracy: ${accuracy*100}`)
     }
 
 }

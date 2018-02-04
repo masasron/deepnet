@@ -1,6 +1,6 @@
 'use strict'
 
-module.exports = {
+const console2 = {
     log: (str,color = 37) => {
         console.log(`\x1b[${color}m${str}\x1b[0m`)
         return console2
@@ -10,3 +10,5 @@ module.exports = {
     warning: str => console2.log(str,33), // Yellow
     info: str => console2.log(str,34) // Blue
 }
+
+module.exports = console2
