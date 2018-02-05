@@ -2,12 +2,20 @@
 
 const fs = require('fs')
 const brain = require('brain.js')
-const shuffle = require('../../shuffle')
-const console2 = require('../../console2')
-const vectorize = require('../../vectorize')
+const shuffle = require('../shuffle')
+const console2 = require('../console2')
+const vectorize = require('../vectorize')
 
 class TrainCommand {
 
+    /**
+     * Initialize the training command
+     * 
+     * @param {string} file 
+     * @param {object} options
+     * 
+     * @returns {void} 
+     */
     constructor(file, options){
 
         this.options = options
@@ -22,6 +30,11 @@ class TrainCommand {
         this.training_dataset = JSON.parse(fs.readFileSync(file))
     }
 
+    /**
+     * Run the tranining process
+     * 
+     * @returns {void}
+     */
     run(){
 
         if (this.options.vectorize) {
@@ -35,7 +48,7 @@ class TrainCommand {
         }
 
         if (this.options.testDatasetPercentage){
-            let {train,test} = this.extractTestingDataset(this.options.testDatasetPercentage, this.training_dataset)
+            let {train, test} = this.splitDataset(this.training_dataset, this.options.testDatasetPercentage)
             this.test_dataset = test
             this.training_dataset = train
         }
@@ -56,15 +69,23 @@ class TrainCommand {
             callbackPeriod: this.options.savePeriod
         })
         
-        console2.bg('blue').log('[TRAINING COMPLETED]')
+        console2.bg('blue').log('[TRAINING SESSION COMPLETED]')
 
         this.saveModel({},true)
 
         if (this.test_dataset.length > 0){
-            this.runAccuracyTests()
+            this.runAccuracyTests(this.net, this.test_dataset)
         }
     }
 
+    /**
+     * Store the current model
+     * 
+     * @param {object} state 
+     * @param {boolean} isFinal
+     * 
+     * @returns {void}
+     */
     saveModel(state, isFinal = false){
         if (typeof state.iterations !== 'undefined' && state.iterations === 0){
             return
@@ -86,18 +107,30 @@ class TrainCommand {
         console2.log(`Model successfully saved to "${path}"`)
     }
 
-    extractTestingDataset(test_dataset_percentage, datasets){
-        let test_dataset_size = Math.round(datasets.length*(test_dataset_percentage*0.01))
+    /**
+     * Split a given dataset based on a given percentage.
+     * 
+     * @param {array} dataset
+     * @param {array} percentage 
+     * 
+     * @returns {object}
+     */
+    splitDataset(dataset, percentage){
+        let size = Math.round(dataset.length*(percentage*0.01))
         
-        let test = datasets.slice(0,test_dataset_size)
-        let train = datasets.slice(test_dataset_size,datasets.length)
+        let test = dataset.slice(0,size)
+        let train = dataset.slice(size+1,dataset.length)
 
-        return {
-            train,
-            test
-        }
+        return {train, test}
     }
 
+    /**
+     * Vectorize a given dataset
+     * 
+     * @param {array} datasets
+     * 
+     * @returns {array}
+     */
     vectorizeDatasets(datasets){
         return datasets.map( dataset => {
             if (typeof dataset.input === 'string'){
@@ -108,16 +141,24 @@ class TrainCommand {
         })
     }
 
-    runAccuracyTests(){
+    /**
+     * Calculate the accuracy of a model for a given dataset.
+     * 
+     * @param {NeuralNetwork} model
+     * @param {array} dataset
+     * 
+     * @returns {float}
+     */
+    runAccuracyTests(model, dataset){
         console2.bg('blue').log('[ACCURACY TESTS]')
-                .log(`Running ${this.test_dataset.length} tests...`)
+                .log(`Running ${dataset.length} tests...`)
 
         let success = 0
 
-        this.test_dataset.forEach( dataset => {
-            let output = this.net.run(dataset.input)
+        dataset.forEach( set => {
+            let output = model.run(set.input)
 
-            switch(dataset.output[0]){
+            switch(set.output[0]){
                 case 1:
                     if (output >= 0.8){
                         success++
@@ -131,13 +172,15 @@ class TrainCommand {
             }
         })
 
-        let accuracy = success / this.test_dataset.length
+        let accuracy = success / dataset.length
 
-        let errors = this.test_dataset.length - success
+        let errors = dataset.length - success
 
         console2.success(`Success: ${success}`)
                 .error(`Errors: ${errors}`)
                 .log(`Model Accuracy: ${accuracy*100}%\n`)
+        
+        return accuracy
     }
 
 }

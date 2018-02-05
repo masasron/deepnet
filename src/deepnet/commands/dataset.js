@@ -1,8 +1,8 @@
 'use strict'
 
 const fs = require('fs')
-const console2 = require('../../console2')
-const vectorize = require('../../vectorize')
+const console2 = require('../console2')
+const vectorize = require('../vectorize')
 
 class DatasetCommand {
 

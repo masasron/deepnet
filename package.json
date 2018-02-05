@@ -4,6 +4,7 @@
   "description": "Fast deep learning in node.",
   "main": "src/cli.js",
   "scripts": {
+    "cli": "node ./src/cli.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [

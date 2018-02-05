@@ -1,6 +1,6 @@
 'use strict'
 
-const console2 = require('../../console2')
+const console2 = require('../console2')
 
 class PredictCommand {
 
