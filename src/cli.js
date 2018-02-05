@@ -12,7 +12,7 @@ commander
   .command('train <file>')
   .option('-t, --test-dataset-percentage <n>', 'percentage of datasets to keep for testing',25)
   .option('-n, --name <value>', 'choose a name for your model',`model-${new Date().getTime()}`)
-  .option('-s, --save-period <n>', 'save model every <n> iterations', -1)
+  .option('-s, --save-period <n>', 'save model every <n> iterations', 20000)
   .option('-v, --vectorize <f>','automatically vectorize strings from training data',parseBoolean, true)
   .option('-l, --learning-rate <f>','network learning rate',parseFloat, 0.1)
   .option('-e, --error-threshold <f>', 'minimum error threshold', parseFloat, 0.005)
