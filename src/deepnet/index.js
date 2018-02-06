@@ -8,12 +8,12 @@ const vectorize = require('./vectorize')
 
 const TrainCommand = require('./commands/train')
 const PredictCommand = require('./commands/predict')
-const DatasetCommand = require('./commands/dataset')
+const MakeDatasetCommand = require('./commands/make-dataset')
 
 const DeepNet = {
     train: TrainCommand,
     predict: PredictCommand,
-    dataset: DatasetCommand
+    makeDataset: MakeDatasetCommand
 }
 
 module.exports = DeepNet
