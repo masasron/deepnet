@@ -1,5 +1,5 @@
 # DeepNet
-DeepNet is simple node based cli tool for creating Machine Learning Classifiers.
+DeepNet is simple node based cli tool for creating machine learning classifiers you can use on the web.
 
 ```bash
 root$ node deepnet/src/cli.js -h
